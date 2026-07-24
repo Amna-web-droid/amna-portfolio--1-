@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  background-color: #F7F5EE;
+  color: #1C2541;
+  background-image:
+    linear-gradient(rgba(28, 37, 65, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(28, 37, 65, 0.07) 1px, transparent 1px);
+  background-size: 26px 26px;
+  background-position: -1px -1px;
+}
+
+::selection {
+  background-color: #E3B23C;
+  color: #1C2541;
+}
+
+:focus-visible {
+  outline: 2px solid #1C2541;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── Clipping card: the "pinned to the notebook page" signature ── */
+.clipping {
+  position: relative;
+  background: #FFFFFF;
+  box-shadow: 0 1px 2px rgba(28, 37, 65, 0.06), 0 8px 24px rgba(28, 37, 65, 0.08);
+}
+
+.clipping::before,
+.clipping::after {
+  content: "";
+  position: absolute;
+  width: 46px;
+  height: 18px;
+  background: rgba(227, 178, 60, 0.55);
+  box-shadow: 0 1px 2px rgba(28, 37, 65, 0.15);
+  top: -9px;
+  z-index: 10;
+}
+
+.clipping::before {
+  left: 18px;
+  transform: rotate(-8deg);
+}
+
+.clipping::after {
+  right: 18px;
+  transform: rotate(6deg);
+}
+
+.clipping-notape::before,
+.clipping-notape::after {
+  content: none;
+}
+
+/* torn paper edge, used on photo/screenshot crops */
+.torn-bottom {
+  -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 10px), transparent 100%);
+  mask-image: linear-gradient(to bottom, black calc(100% - 10px), transparent 100%);
+}
