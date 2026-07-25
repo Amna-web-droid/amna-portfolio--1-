@@ -8,6 +8,8 @@ import { journeyBooks as staticBooks } from "@/data/journeyBooks";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 const rotations = [-1, 1, -1.5, 1.5, -0.5];
 
