@@ -1,5 +1,6 @@
 import { Playfair_Display, Work_Sans, Caveat, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import ChatWidget from "@/components/ChatWidget";
 
 const display = Playfair_Display({
   subsets: ["latin"],
@@ -27,7 +28,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata = {
-  metadataBase: new URL("https://amna-portfolio.vercel.app"),
+  metadataBase: new URL("https://amna-portfolio-1.vercel.app"),
   title: {
     default: "Amna Mushtaq — MERN Stack Developer",
     template: "%s",
@@ -54,10 +55,27 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var stored = localStorage.getItem("theme");
+                  var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                  var isDark = stored ? stored === "dark" : prefersDark;
+                  if (isDark) document.documentElement.classList.add("dark");
+                } catch (e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${display.variable} ${body.variable} ${hand.variable} ${mono.variable} font-body bg-paper text-ink antialiased`}
       >
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

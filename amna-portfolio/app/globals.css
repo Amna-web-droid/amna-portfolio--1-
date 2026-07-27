@@ -18,23 +18,57 @@ html {
   }
 }
 
+/* ── Theme tokens: light (default) ── */
+:root {
+  --color-paper: 247 245 238;
+  --color-card: 255 255 255;
+  --color-line: 199 208 220;
+  --color-ink: 28 37 65;
+  --color-muted: 91 100 114;
+  --color-red: 177 68 68;
+  --color-tape: 227 178 60;
+  --color-gold: 138 100 22;
+  --color-green: 63 117 84;
+  --color-plum: 107 63 94;
+  --tape-opacity: 0.55;
+  --grid-opacity: 0.07;
+}
+
+/* ── Theme tokens: dark — a "notebook at night" palette,
+   warm charcoal instead of generic navy/black ── */
+.dark {
+  --color-paper: 26 24 21;
+  --color-card: 38 35 31;
+  --color-line: 64 58 50;
+  --color-ink: 232 226 214;
+  --color-muted: 163 153 138;
+  --color-red: 224 122 106;
+  --color-tape: 199 156 74;
+  --color-gold: 214 176 100;
+  --color-green: 118 181 140;
+  --color-plum: 191 143 177;
+  --tape-opacity: 0.28;
+  --grid-opacity: 0.045;
+}
+
 body {
-  background-color: #F7F5EE;
-  color: #1C2541;
+  background-color: rgb(var(--color-paper));
+  color: rgb(var(--color-ink));
   background-image:
-    linear-gradient(rgba(28, 37, 65, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(28, 37, 65, 0.07) 1px, transparent 1px);
+    linear-gradient(rgb(var(--color-ink) / var(--grid-opacity)) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--color-ink) / var(--grid-opacity)) 1px, transparent 1px);
   background-size: 26px 26px;
   background-position: -1px -1px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background-color: #E3B23C;
-  color: #1C2541;
+  background-color: rgb(var(--color-tape));
+  color: rgb(var(--color-ink));
 }
 
 :focus-visible {
-  outline: 2px solid #1C2541;
+  outline: 2px solid rgb(var(--color-ink));
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -42,8 +76,12 @@ body {
 /* ── Clipping card: the "pinned to the notebook page" signature ── */
 .clipping {
   position: relative;
-  background: #FFFFFF;
-  box-shadow: 0 1px 2px rgba(28, 37, 65, 0.06), 0 8px 24px rgba(28, 37, 65, 0.08);
+  background: rgb(var(--color-card));
+  box-shadow: 0 1px 2px rgb(var(--color-ink) / 0.06), 0 8px 24px rgb(var(--color-ink) / 0.08);
+}
+
+.dark .clipping {
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(var(--color-line) / 0.5);
 }
 
 .clipping::before,
@@ -52,8 +90,8 @@ body {
   position: absolute;
   width: 46px;
   height: 18px;
-  background: rgba(227, 178, 60, 0.55);
-  box-shadow: 0 1px 2px rgba(28, 37, 65, 0.15);
+  background: rgb(var(--color-tape) / var(--tape-opacity));
+  box-shadow: 0 1px 2px rgb(var(--color-ink) / 0.15);
   top: -9px;
   z-index: 10;
 }
@@ -77,4 +115,15 @@ body {
 .torn-bottom {
   -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 10px), transparent 100%);
   mask-image: linear-gradient(to bottom, black calc(100% - 10px), transparent 100%);
+}
+
+/* ── Chat widget pulse ring ── */
+@keyframes chat-pulse {
+  0% { box-shadow: 0 0 0 0 rgb(var(--color-red) / 0.45); }
+  70% { box-shadow: 0 0 0 12px rgb(var(--color-red) / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--color-red) / 0); }
+}
+
+.chat-pulse {
+  animation: chat-pulse 2.4s ease-out infinite;
 }

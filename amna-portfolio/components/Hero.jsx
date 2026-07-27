@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, PenTool, Coffee } from "lucide-react";
+import { Sparkles, PenTool } from "lucide-react";
 
 export default function Hero() {
   return (
-    <section className="px-6 md:px-10 pt-10 md:pt-16 pb-20 relative overflow-hidden">
+    <section id="top" className="px-6 md:px-10 pt-10 md:pt-16 pb-20 relative overflow-hidden">
       <div className="max-w-content mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 14 }}
@@ -46,12 +46,27 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 absolute -right-2 top-2 text-muted rotate-6">
-            <PenTool size={20} />
-          </div>
-          <div className="hidden md:flex items-center gap-2 absolute right-24 top-24 text-muted -rotate-12">
-            <Coffee size={22} />
-          </div>
+          {/* Floating sticky-note tag — the "empty space" filler */}
+          <motion.div
+            initial={{ opacity: 0, y: -10, rotate: -8 }}
+            animate={{ opacity: 1, y: 0, rotate: -6 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            whileHover={{ rotate: 0, scale: 1.03 }}
+            className="hidden lg:block absolute -right-4 top-6 bg-tape/25 border border-tape/60 px-4 py-2.5 rounded-sm shadow-sm"
+          >
+            <p className="font-mono text-xs text-ink whitespace-nowrap">
+              const isBuilding = true;
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="hidden lg:flex items-center justify-center absolute right-10 top-40 w-11 h-11 rounded-full bg-ink text-paper shadow-md -rotate-12"
+          >
+            <PenTool size={18} />
+          </motion.div>
         </motion.div>
       </div>
     </section>

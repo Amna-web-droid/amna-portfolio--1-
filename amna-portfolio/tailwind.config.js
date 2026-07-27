@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./app/**/*.{js,jsx}",
     "./components/**/*.{js,jsx}",
@@ -7,16 +8,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        paper: "#F7F5EE",
-        card: "#FFFFFF",
-        line: "#C7D0DC",
-        ink: "#1C2541",
-        muted: "#5B6472",
-        red: "#B14444",
-        tape: "#E3B23C",
-        gold: "#8A6416",
-        green: "#3F7554",
-        plum: "#6B3F5E",
+        paper: "rgb(var(--color-paper) / <alpha-value>)",
+        card: "rgb(var(--color-card) / <alpha-value>)",
+        line: "rgb(var(--color-line) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        red: "rgb(var(--color-red) / <alpha-value>)",
+        tape: "rgb(var(--color-tape) / <alpha-value>)",
+        gold: "rgb(var(--color-gold) / <alpha-value>)",
+        green: "rgb(var(--color-green) / <alpha-value>)",
+        plum: "rgb(var(--color-plum) / <alpha-value>)",
       },
       fontFamily: {
         display: ["var(--font-display)"],
