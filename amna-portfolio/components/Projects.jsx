@@ -14,6 +14,8 @@ async function getProjects(category, fallback) {
   if (error || !data) return fallback;
 
   return data.map((row) => ({
+    id: row.id,
+    category: row.category,
     title: row.title,
     description: row.description,
     tags: row.tags

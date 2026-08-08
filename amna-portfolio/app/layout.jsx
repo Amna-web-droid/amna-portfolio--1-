@@ -1,17 +1,19 @@
-import { Playfair_Display, Work_Sans, Caveat, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, Caveat, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ChatWidget from "@/components/ChatWidget";
+import CommandPalette from "@/components/CommandPalette";
+import { Analytics } from "@vercel/analytics/react";
 
-const display = Playfair_Display({
+const display = Fraunces({
   subsets: ["latin"],
-  weight: ["600", "700", "900"],
+  weight: ["500", "600", "700", "900"],
   style: ["normal", "italic"],
   variable: "--font-display",
 });
 
-const body = Work_Sans({
+const body = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-body",
 });
 
@@ -76,6 +78,8 @@ export default function RootLayout({ children }) {
       >
         {children}
         <ChatWidget />
+        <CommandPalette />
+        <Analytics />
       </body>
     </html>
   );

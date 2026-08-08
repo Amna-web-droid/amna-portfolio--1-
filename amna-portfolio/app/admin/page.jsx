@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
-import { Lock, Trash2, UploadCloud } from "lucide-react";
+import { Lock, Trash2, UploadCloud, Pencil, X } from "lucide-react";
 
 const ADMIN_PASSCODE = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || "";
 
@@ -21,6 +21,7 @@ const tabs = [
   { id: "projects", label: "Projects" },
   { id: "designs", label: "Designs" },
   { id: "journey", label: "Journey" },
+  { id: "status", label: "Status" },
 ];
 
 export default function AdminPage() {
@@ -110,6 +111,7 @@ export default function AdminPage() {
       {tab === "projects" && <ProjectsPanel />}
       {tab === "designs" && <DesignsPanel />}
       {tab === "journey" && <JourneyPanel />}
+      {tab === "status" && <StatusPanel />}
     </main>
   );
 }
@@ -125,13 +127,13 @@ function fieldLabel(text) {
 const inputClass =
   "w-full border-2 border-line focus:border-ink outline-none px-3 py-2 rounded-sm";
 
-function FileField({ file, setFile }) {
+function FileField({ file, setFile, currentUrl }) {
   return (
     <div>
-      {fieldLabel("Image")}
+      {fieldLabel(currentUrl ? "Image (leave blank to keep current)" : "Image")}
       <label className="flex items-center gap-2 border-2 border-dashed border-line rounded-sm px-3 py-4 cursor-pointer hover:border-ink transition-colors text-sm text-muted">
         <UploadCloud size={16} />
-        {file ? file.name : "Click to choose an image"}
+        {file ? file.name : currentUrl ? "Click to replace image" : "Click to choose an image"}
         <input
           type="file"
           accept="image/*"
@@ -158,6 +160,8 @@ function ProjectsPanel() {
   const [message, setMessage] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editingScreenshot, setEditingScreenshot] = useState("");
 
   async function load() {
     setLoading(true);
@@ -173,13 +177,39 @@ function ProjectsPanel() {
     load();
   }, []);
 
+  function startEdit(p) {
+    setEditingId(p.id);
+    setEditingScreenshot(p.screenshot_url || "");
+    setForm({
+      title: p.title || "",
+      description: p.description || "",
+      category: p.category || "frontend",
+      tags: p.tags || "",
+      github: p.github || "",
+      live: p.live || "",
+    });
+    setFile(null);
+    setMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditingScreenshot("");
+    setForm(emptyForm);
+    setFile(null);
+    setMessage("");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
     setMessage("");
     try {
-      const screenshot_url = file ? await uploadFile(file) : "";
-      const { error } = await supabase.from("projects").insert({
+      let screenshot_url = editingId ? editingScreenshot : "";
+      if (file) screenshot_url = await uploadFile(file);
+
+      const payload = {
         title: form.title,
         description: form.description,
         category: form.category,
@@ -187,11 +217,19 @@ function ProjectsPanel() {
         github: form.github,
         live: form.live,
         screenshot_url,
-      });
-      if (error) throw error;
-      setMessage("Saved! It'll show up on the site right away.");
-      setForm(emptyForm);
-      setFile(null);
+      };
+
+      if (editingId) {
+        const { error } = await supabase.from("projects").update(payload).eq("id", editingId);
+        if (error) throw error;
+        setMessage("Updated!");
+      } else {
+        const { error } = await supabase.from("projects").insert(payload);
+        if (error) throw error;
+        setMessage("Saved! It'll show up on the site right away.");
+      }
+
+      cancelEdit();
       load();
     } catch (err) {
       setMessage(`Something went wrong: ${err.message}`);
@@ -203,12 +241,27 @@ function ProjectsPanel() {
   async function handleDelete(id) {
     if (!confirm("Delete this project?")) return;
     await supabase.from("projects").delete().eq("id", id);
+    if (editingId === id) cancelEdit();
     load();
   }
 
   return (
     <>
       <form onSubmit={handleSubmit} className="clipping clipping-notape p-8 mb-16 space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-bold text-xl">
+            {editingId ? "Edit project" : "Add a project"}
+          </h3>
+          {editingId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="inline-flex items-center gap-1 text-sm text-muted hover:text-red transition-colors"
+            >
+              <X size={14} /> Cancel
+            </button>
+          )}
+        </div>
         <div>
           {fieldLabel("Title")}
           <input
@@ -269,13 +322,13 @@ function ProjectsPanel() {
             />
           </div>
         </div>
-        <FileField file={file} setFile={setFile} />
+        <FileField file={file} setFile={setFile} currentUrl={editingId ? editingScreenshot : ""} />
         <button
           type="submit"
           disabled={saving}
           className="bg-ink text-paper px-6 py-3 rounded-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
         >
-          {saving ? "Saving..." : "Save project"}
+          {saving ? "Saving..." : editingId ? "Update project" : "Save project"}
         </button>
         {message && <p className="text-sm mt-2">{message}</p>}
       </form>
@@ -290,9 +343,14 @@ function ProjectsPanel() {
               <p className="font-medium">{p.title}</p>
               <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{p.category}</p>
             </div>
-            <button onClick={() => handleDelete(p.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
-              <Trash2 size={17} />
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={() => startEdit(p)} className="text-muted hover:text-ink transition-colors" aria-label="Edit">
+                <Pencil size={16} />
+              </button>
+              <button onClick={() => handleDelete(p.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
+                <Trash2 size={17} />
+              </button>
+            </div>
           </div>
         ))}
         {items.length === 0 && !loading && <p className="text-muted text-sm">No projects saved yet.</p>}
@@ -309,6 +367,8 @@ function DesignsPanel() {
   const [message, setMessage] = useState("");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editingImage, setEditingImage] = useState("");
 
   async function load() {
     setLoading(true);
@@ -324,22 +384,53 @@ function DesignsPanel() {
     load();
   }, []);
 
+  function startEdit(d) {
+    setEditingId(d.id);
+    setEditingImage(d.image_url || "");
+    setForm({
+      title: d.title || "",
+      description: d.description || "",
+      figma: d.figma || "",
+    });
+    setFile(null);
+    setMessage("");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditingImage("");
+    setForm(emptyForm);
+    setFile(null);
+    setMessage("");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setSaving(true);
     setMessage("");
     try {
-      const image_url = file ? await uploadFile(file) : "";
-      const { error } = await supabase.from("designs").insert({
+      let image_url = editingId ? editingImage : "";
+      if (file) image_url = await uploadFile(file);
+
+      const payload = {
         title: form.title,
         description: form.description,
         figma: form.figma,
         image_url,
-      });
-      if (error) throw error;
-      setMessage("Saved!");
-      setForm(emptyForm);
-      setFile(null);
+      };
+
+      if (editingId) {
+        const { error } = await supabase.from("designs").update(payload).eq("id", editingId);
+        if (error) throw error;
+        setMessage("Updated!");
+      } else {
+        const { error } = await supabase.from("designs").insert(payload);
+        if (error) throw error;
+        setMessage("Saved!");
+      }
+
+      cancelEdit();
       load();
     } catch (err) {
       setMessage(`Something went wrong: ${err.message}`);
@@ -351,12 +442,27 @@ function DesignsPanel() {
   async function handleDelete(id) {
     if (!confirm("Delete this design?")) return;
     await supabase.from("designs").delete().eq("id", id);
+    if (editingId === id) cancelEdit();
     load();
   }
 
   return (
     <>
       <form onSubmit={handleSubmit} className="clipping clipping-notape p-8 mb-16 space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-bold text-xl">
+            {editingId ? "Edit design" : "Add a design"}
+          </h3>
+          {editingId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="inline-flex items-center gap-1 text-sm text-muted hover:text-red transition-colors"
+            >
+              <X size={14} /> Cancel
+            </button>
+          )}
+        </div>
         <div>
           {fieldLabel("Title")}
           <input
@@ -384,13 +490,13 @@ function DesignsPanel() {
             className={inputClass}
           />
         </div>
-        <FileField file={file} setFile={setFile} />
+        <FileField file={file} setFile={setFile} currentUrl={editingId ? editingImage : ""} />
         <button
           type="submit"
           disabled={saving}
           className="bg-ink text-paper px-6 py-3 rounded-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
         >
-          {saving ? "Saving..." : "Save design"}
+          {saving ? "Saving..." : editingId ? "Update design" : "Save design"}
         </button>
         {message && <p className="text-sm mt-2">{message}</p>}
       </form>
@@ -402,9 +508,14 @@ function DesignsPanel() {
         {items.map((d) => (
           <div key={d.id} className="flex items-center justify-between border border-line rounded-sm px-4 py-3">
             <p className="font-medium">{d.title}</p>
-            <button onClick={() => handleDelete(d.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
-              <Trash2 size={17} />
-            </button>
+            <div className="flex items-center gap-3">
+              <button onClick={() => startEdit(d)} className="text-muted hover:text-ink transition-colors" aria-label="Edit">
+                <Pencil size={16} />
+              </button>
+              <button onClick={() => handleDelete(d.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
+                <Trash2 size={17} />
+              </button>
+            </div>
           </div>
         ))}
         {items.length === 0 && !loading && <p className="text-muted text-sm">No designs saved yet.</p>}
@@ -429,6 +540,7 @@ function JourneyPanel() {
   const [conceptForm, setConceptForm] = useState(emptyConceptForm);
   const [savingConcept, setSavingConcept] = useState(false);
   const [message, setMessage] = useState("");
+  const [editingConceptId, setEditingConceptId] = useState(null);
 
   async function loadBooks(preferId) {
     setLoadingBooks(true);
@@ -469,6 +581,8 @@ function JourneyPanel() {
 
   useEffect(() => {
     loadConcepts(selectedBookId);
+    setEditingConceptId(null);
+    setConceptForm(emptyConceptForm);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedBookId]);
 
@@ -500,22 +614,52 @@ function JourneyPanel() {
     loadBooks();
   }
 
-  async function handleAddConcept(e) {
+  function startEditConcept(c) {
+    setEditingConceptId(c.id);
+    setConceptForm({
+      title: c.title || "",
+      description: c.description || "",
+      code: c.code || "",
+      language: c.language || "",
+    });
+    setMessage("");
+  }
+
+  function cancelEditConcept() {
+    setEditingConceptId(null);
+    setConceptForm(emptyConceptForm);
+    setMessage("");
+  }
+
+  async function handleSaveConcept(e) {
     e.preventDefault();
     if (!selectedBookId) return;
     setSavingConcept(true);
     setMessage("");
     try {
-      const { error } = await supabase.from("journey_concepts").insert({
-        book_id: selectedBookId,
+      const payload = {
         title: conceptForm.title,
         description: conceptForm.description,
         code: conceptForm.code || null,
         language: conceptForm.language || null,
-      });
-      if (error) throw error;
-      setMessage("Saved!");
-      setConceptForm(emptyConceptForm);
+      };
+
+      if (editingConceptId) {
+        const { error } = await supabase
+          .from("journey_concepts")
+          .update(payload)
+          .eq("id", editingConceptId);
+        if (error) throw error;
+        setMessage("Updated!");
+      } else {
+        const { error } = await supabase
+          .from("journey_concepts")
+          .insert({ ...payload, book_id: selectedBookId });
+        if (error) throw error;
+        setMessage("Saved!");
+      }
+
+      cancelEditConcept();
       loadConcepts(selectedBookId);
     } catch (err) {
       setMessage(`Something went wrong: ${err.message}`);
@@ -527,6 +671,7 @@ function JourneyPanel() {
   async function handleDeleteConcept(id) {
     if (!confirm("Delete this concept?")) return;
     await supabase.from("journey_concepts").delete().eq("id", id);
+    if (editingConceptId === id) cancelEditConcept();
     loadConcepts(selectedBookId);
   }
 
@@ -588,10 +733,21 @@ function JourneyPanel() {
 
       {selectedBook && (
         <>
-          <form onSubmit={handleAddConcept} className="clipping clipping-notape p-8 mb-10 space-y-5">
-            <h3 className="font-display font-bold text-xl mb-1">
-              Add a concept to {selectedBook.title}
-            </h3>
+          <form onSubmit={handleSaveConcept} className="clipping clipping-notape p-8 mb-10 space-y-5">
+            <div className="flex items-center justify-between">
+              <h3 className="font-display font-bold text-xl">
+                {editingConceptId ? "Edit concept" : `Add a concept to ${selectedBook.title}`}
+              </h3>
+              {editingConceptId && (
+                <button
+                  type="button"
+                  onClick={cancelEditConcept}
+                  className="inline-flex items-center gap-1 text-sm text-muted hover:text-red transition-colors"
+                >
+                  <X size={14} /> Cancel
+                </button>
+              )}
+            </div>
             <div className="grid sm:grid-cols-2 gap-5">
               <div>
                 {fieldLabel("Concept title")}
@@ -636,7 +792,7 @@ function JourneyPanel() {
               disabled={savingConcept}
               className="bg-ink text-paper px-6 py-3 rounded-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
             >
-              {savingConcept ? "Saving..." : "Save concept"}
+              {savingConcept ? "Saving..." : editingConceptId ? "Update concept" : "Save concept"}
             </button>
             {message && <p className="text-sm mt-2">{message}</p>}
           </form>
@@ -648,9 +804,14 @@ function JourneyPanel() {
             {concepts.map((c) => (
               <div key={c.id} className="flex items-center justify-between border border-line rounded-sm px-4 py-3">
                 <p className="font-medium">{c.title}</p>
-                <button onClick={() => handleDeleteConcept(c.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
-                  <Trash2 size={17} />
-                </button>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => startEditConcept(c)} className="text-muted hover:text-ink transition-colors" aria-label="Edit">
+                    <Pencil size={16} />
+                  </button>
+                  <button onClick={() => handleDeleteConcept(c.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
+                    <Trash2 size={17} />
+                  </button>
+                </div>
               </div>
             ))}
             {concepts.length === 0 && !loadingConcepts && (
@@ -667,5 +828,90 @@ function JourneyPanel() {
         </>
       )}
     </>
+  );
+}
+
+function StatusPanel() {
+  const [current, setCurrent] = useState("");
+  const [newStatus, setNewStatus] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("site_status")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!error && data) {
+      setCurrent(data.current_focus);
+      setNewStatus(data.current_focus);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      const { error } = await supabase
+        .from("site_status")
+        .insert({ current_focus: newStatus });
+      if (error) throw error;
+      setMessage("Updated! It shows up under your hero section.");
+      load();
+    } catch (err) {
+      setMessage(`Something went wrong: ${err.message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="clipping clipping-notape p-8">
+      <h3 className="font-display font-bold text-xl mb-1">
+        &quot;Currently&quot; status
+      </h3>
+      <p className="text-sm text-muted mb-6">
+        Shows as a small badge under your hero section &mdash; a one-line
+        note on what you&apos;re working on right now.
+      </p>
+
+      {current && (
+        <p className="text-sm mb-4">
+          <span className="text-muted">Live now: </span>
+          {loading ? "loading..." : current}
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div>
+          {fieldLabel("New status")}
+          <input
+            required
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value)}
+            placeholder="Learning Node.js authentication patterns"
+            className={inputClass}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-ink text-paper px-6 py-3 rounded-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
+        >
+          {saving ? "Saving..." : "Update status"}
+        </button>
+        {message && <p className="text-sm mt-2">{message}</p>}
+      </form>
+    </div>
   );
 }

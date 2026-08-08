@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Download, Search } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 
 const links = [
@@ -54,6 +54,19 @@ export default function Nav() {
                 ))}
               </ul>
             </nav>
+            <a
+              href="/resume.pdf"
+              download
+              className="inline-flex items-center gap-1.5 text-sm border border-line rounded-full px-3 py-1.5 hover:border-red hover:text-red transition-colors whitespace-nowrap"
+            >
+              <Download size={14} /> Resume
+            </a>
+            <button
+              onClick={() => window.dispatchEvent(new Event("open-command-palette"))}
+              className="hidden lg:inline-flex items-center gap-1.5 text-xs font-mono text-muted border border-line rounded-full px-2.5 py-1.5 hover:border-ink hover:text-ink transition-colors"
+            >
+              <Search size={12} /> ⌘K
+            </button>
             <ThemeToggle />
           </div>
 
@@ -77,7 +90,7 @@ export default function Nav() {
               <span className="w-1.5 h-1.5 rounded-full bg-green" />
               Available for freelance
             </span>
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3 mb-3">
               {links.map((l) => (
                 <li key={l.label}>
                   <Link
@@ -90,6 +103,13 @@ export default function Nav() {
                 </li>
               ))}
             </ul>
+            <a
+              href="/resume.pdf"
+              download
+              className="inline-flex items-center gap-1.5 text-sm border border-line rounded-full px-3 py-1.5 hover:border-red hover:text-red transition-colors"
+            >
+              <Download size={14} /> Download Resume
+            </a>
           </div>
         )}
       </div>

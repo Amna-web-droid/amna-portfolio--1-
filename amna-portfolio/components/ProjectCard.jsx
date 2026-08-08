@@ -1,27 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { Github, ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
 import Clipping from "./Clipping";
 
 export default function ProjectCard({ project, rotate = 0 }) {
-  const { title, description, tags, screenshot, github, live } = project;
-
-  const imageBoxClass =
-    "relative aspect-[16/10] bg-paper overflow-hidden torn-bottom block " +
-    (screenshot ? "cursor-zoom-in" : "cursor-default");
+  const { id, title, description, tags, screenshot, github, live } = project;
+  const detailHref = id ? `/work/${id}` : null;
 
   return (
     <Clipping rotate={rotate} className="p-3 pb-5">
-      <a
-        href={screenshot || undefined}
-        target="_blank"
-        rel="noreferrer"
-        className={imageBoxClass}
-        onClick={(e) => {
-          if (!screenshot) e.preventDefault();
-        }}
-      >
+      <div className="relative aspect-[16/10] bg-paper overflow-hidden torn-bottom">
         {screenshot ? (
           <Image
             src={screenshot}
@@ -35,11 +25,23 @@ export default function ProjectCard({ project, rotate = 0 }) {
             add a screenshot →
           </div>
         )}
-      </a>
+      </div>
 
       <div className="px-2 pt-4">
-        <h3 className="font-display font-bold text-lg mb-1.5">{title}</h3>
-        <p className="text-sm text-muted leading-relaxed mb-3">{description}</p>
+        {detailHref ? (
+          <Link href={detailHref} className="group inline-flex items-center gap-1.5">
+            <h3 className="font-display font-bold text-lg group-hover:text-red transition-colors">
+              {title}
+            </h3>
+            <ArrowUpRight
+              size={15}
+              className="text-muted group-hover:text-red transition-colors"
+            />
+          </Link>
+        ) : (
+          <h3 className="font-display font-bold text-lg">{title}</h3>
+        )}
+        <p className="text-sm text-muted leading-relaxed mb-3 mt-1.5">{description}</p>
 
         {tags?.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">

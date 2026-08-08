@@ -1,4 +1,5 @@
 import Clipping from "./Clipping";
+import GitHubStats from "./GitHubStats";
 import { BookMarked, GraduationCap } from "lucide-react";
 
 const wordBuilds = [
@@ -61,6 +62,8 @@ export default function About() {
               <BookMarked size={16} /> MERN stack developer
             </div>
           </div>
+
+          <GitHubStats />
         </div>
 
         <Clipping rotate={2} tape={false} className="p-6 self-start">

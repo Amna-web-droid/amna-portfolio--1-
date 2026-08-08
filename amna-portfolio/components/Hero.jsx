@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, PenTool } from "lucide-react";
 
-export default function Hero() {
+export default function Hero({ children }) {
   return (
     <section id="top" className="px-6 md:px-10 pt-10 md:pt-16 pb-20 relative overflow-hidden">
       <div className="max-w-content mx-auto">
@@ -45,6 +45,8 @@ export default function Hero() {
               </a>
             </div>
           </div>
+
+          {children}
 
           {/* Floating sticky-note tag — the "empty space" filler */}
           <motion.div

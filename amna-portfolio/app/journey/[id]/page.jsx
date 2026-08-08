@@ -4,12 +4,11 @@ import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import JourneyEntry from "@/components/JourneyEntry";
+import ReadingProgress from "@/components/ReadingProgress";
 import { journeyBooks as staticBooks } from "@/data/journeyBooks";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 10;
 
 const rotations = [-1, 1, -1.5, 1.5, -0.5];
 
@@ -52,6 +51,7 @@ export default async function BookPage({ params }) {
 
   return (
     <>
+      <ReadingProgress />
       <Nav />
       <main className="px-6 md:px-10 py-16">
         <div className="max-w-content mx-auto">

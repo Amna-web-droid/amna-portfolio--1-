@@ -5,10 +5,9 @@ import Projects from "@/components/Projects";
 import Designs from "@/components/Designs";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import StatusWidget from "@/components/StatusWidget";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const revalidate = 10;
 
 
 export default function Home() {
@@ -16,7 +15,9 @@ export default function Home() {
     <>
       <Nav />
       <main>
-        <Hero />
+        <Hero>
+          <StatusWidget />
+        </Hero>
         <About />
         <Projects />
         <Designs />
