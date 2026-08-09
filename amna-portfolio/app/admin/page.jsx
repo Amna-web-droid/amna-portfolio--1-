@@ -72,7 +72,7 @@ export default function AdminPage() {
             value={passInput}
             onChange={(e) => setPassInput(e.target.value)}
             placeholder="Passcode"
-            className="w-full border-2 border-line focus:border-ink outline-none px-3 py-2 rounded-sm mb-3"
+            className="w-full border-2 border-line focus:border-ink outline-none px-3 py-2 rounded-sm mb-3 bg-card text-ink placeholder:text-muted"
             autoFocus
           />
           {authError && <p className="text-red text-sm mb-3">{authError}</p>}
@@ -125,7 +125,7 @@ function fieldLabel(text) {
 }
 
 const inputClass =
-  "w-full border-2 border-line focus:border-ink outline-none px-3 py-2 rounded-sm";
+  "w-full border-2 border-line focus:border-ink outline-none px-3 py-2 rounded-sm bg-card text-ink placeholder:text-muted";
 
 function FileField({ file, setFile, currentUrl }) {
   return (

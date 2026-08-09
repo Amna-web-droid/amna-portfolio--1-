@@ -43,11 +43,17 @@ export default async function GitHubStats() {
   ];
 
   return (
-    <div className="flex flex-wrap gap-6 mt-6 pt-6 border-t border-line">
+    <div className="flex flex-wrap gap-4 mt-6 pt-6 border-t border-line">
       {items.map(({ label, value, Icon }) => (
-        <div key={label} className="flex items-center gap-2 text-sm text-muted">
-          <Icon size={16} />
-          <span className="text-ink font-medium">{value}</span> {label}
+        <div
+          key={label}
+          className="flex items-center gap-3 border border-line rounded-sm px-4 py-3 bg-card"
+        >
+          <Icon size={20} className="text-red" />
+          <div>
+            <p className="font-display font-bold text-2xl leading-none">{value}</p>
+            <p className="text-xs text-muted mt-1">{label}</p>
+          </div>
         </div>
       ))}
     </div>
