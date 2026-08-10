@@ -19,6 +19,15 @@ export default function Contact() {
 
         <Clipping rotate={-0.5} className="p-8 md:p-10">
           <form action={FORMSPREE_ENDPOINT} method="POST" className="space-y-5">
+            {/* Honeypot — hidden from real visitors, bots often fill it in */}
+            <input
+              type="text"
+              name="_gotcha"
+              tabIndex={-1}
+              autoComplete="off"
+              className="hidden"
+              aria-hidden="true"
+            />
             <div>
               <label className="font-mono text-[10px] uppercase tracking-widest text-muted block mb-1.5">
                 Name

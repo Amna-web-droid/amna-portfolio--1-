@@ -1,6 +1,6 @@
 import { frontendProjects, backendProjects, fullstackProjects } from "@/data/projects";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
-import ProjectSection from "./ProjectSection";
+import ProjectsBoard from "./ProjectsBoard";
 
 async function getProjects(category, fallback) {
   if (!isSupabaseConfigured()) return fallback;
@@ -48,30 +48,7 @@ export default async function Projects() {
           </p>
         )}
 
-        <ProjectSection
-          id="frontend"
-          sectionLabel="B.1 — Frontend"
-          title="Frontend projects"
-          blurb="Interfaces I designed and built end to end."
-          projects={frontend}
-          accent="text-red"
-        />
-        <ProjectSection
-          id="backend"
-          sectionLabel="B.2 — Backend"
-          title="Backend projects"
-          blurb="APIs, servers, and the logic behind the screen."
-          projects={backend}
-          accent="text-green"
-        />
-        <ProjectSection
-          id="fullstack"
-          sectionLabel="B.3 — Full-stack"
-          title="Full-stack projects"
-          blurb="End-to-end builds — frontend and backend together."
-          projects={fullstack}
-          accent="text-gold"
-        />
+        <ProjectsBoard frontend={frontend} backend={backend} fullstack={fullstack} />
       </div>
     </section>
   );

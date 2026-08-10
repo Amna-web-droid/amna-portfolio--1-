@@ -57,6 +57,18 @@ export default async function ProjectDetailPage({ params }) {
       <Nav />
       <main className="px-6 md:px-10 py-16">
         <div className="max-w-content mx-auto max-w-3xl">
+          <nav className="flex items-center gap-1.5 text-xs text-muted mb-4 font-mono">
+            <Link href="/" className="hover:text-red transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <Link href="/#work" className="hover:text-red transition-colors">
+              Work
+            </Link>
+            <span>/</span>
+            <span className="text-ink">{project.title}</span>
+          </nav>
+
           <Link
             href="/#work"
             className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-red transition-colors mb-8"

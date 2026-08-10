@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import { Lock, Trash2, UploadCloud, Pencil, X } from "lucide-react";
+import { notify } from "@/components/Toaster";
 
 const ADMIN_PASSCODE = process.env.NEXT_PUBLIC_ADMIN_PASSCODE || "";
 
@@ -22,6 +23,7 @@ const tabs = [
   { id: "designs", label: "Designs" },
   { id: "journey", label: "Journey" },
   { id: "status", label: "Status" },
+  { id: "testimonials", label: "Testimonials" },
 ];
 
 export default function AdminPage() {
@@ -112,6 +114,7 @@ export default function AdminPage() {
       {tab === "designs" && <DesignsPanel />}
       {tab === "journey" && <JourneyPanel />}
       {tab === "status" && <StatusPanel />}
+      {tab === "testimonials" && <TestimonialsPanel />}
     </main>
   );
 }
@@ -222,17 +225,17 @@ function ProjectsPanel() {
       if (editingId) {
         const { error } = await supabase.from("projects").update(payload).eq("id", editingId);
         if (error) throw error;
-        setMessage("Updated!");
+        setMessage("Updated!"); notify("Updated!");
       } else {
         const { error } = await supabase.from("projects").insert(payload);
         if (error) throw error;
-        setMessage("Saved! It'll show up on the site right away.");
+        setMessage("Saved! It'll show up on the site right away."); notify("Saved! It'll show up on the site right away.");
       }
 
       cancelEdit();
       load();
     } catch (err) {
-      setMessage(`Something went wrong: ${err.message}`);
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
     } finally {
       setSaving(false);
     }
@@ -423,17 +426,17 @@ function DesignsPanel() {
       if (editingId) {
         const { error } = await supabase.from("designs").update(payload).eq("id", editingId);
         if (error) throw error;
-        setMessage("Updated!");
+        setMessage("Updated!"); notify("Updated!");
       } else {
         const { error } = await supabase.from("designs").insert(payload);
         if (error) throw error;
-        setMessage("Saved!");
+        setMessage("Saved!"); notify("Saved!");
       }
 
       cancelEdit();
       load();
     } catch (err) {
-      setMessage(`Something went wrong: ${err.message}`);
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
     } finally {
       setSaving(false);
     }
@@ -601,7 +604,7 @@ function JourneyPanel() {
       setNewBookIcon("");
       await loadBooks(data.id);
     } catch (err) {
-      setMessage(`Something went wrong: ${err.message}`);
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
     } finally {
       setCreatingBook(false);
     }
@@ -650,19 +653,19 @@ function JourneyPanel() {
           .update(payload)
           .eq("id", editingConceptId);
         if (error) throw error;
-        setMessage("Updated!");
+        setMessage("Updated!"); notify("Updated!");
       } else {
         const { error } = await supabase
           .from("journey_concepts")
           .insert({ ...payload, book_id: selectedBookId });
         if (error) throw error;
-        setMessage("Saved!");
+        setMessage("Saved!"); notify("Saved!");
       }
 
       cancelEditConcept();
       loadConcepts(selectedBookId);
     } catch (err) {
-      setMessage(`Something went wrong: ${err.message}`);
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
     } finally {
       setSavingConcept(false);
     }
@@ -866,10 +869,10 @@ function StatusPanel() {
         .from("site_status")
         .insert({ current_focus: newStatus });
       if (error) throw error;
-      setMessage("Updated! It shows up under your hero section.");
+      setMessage("Updated! It shows up under your hero section."); notify("Updated! It shows up under your hero section.");
       load();
     } catch (err) {
-      setMessage(`Something went wrong: ${err.message}`);
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
     } finally {
       setSaving(false);
     }
@@ -913,5 +916,153 @@ function StatusPanel() {
         {message && <p className="text-sm mt-2">{message}</p>}
       </form>
     </div>
+  );
+}
+
+function TestimonialsPanel() {
+  const emptyForm = { name: "", role: "", quote: "" };
+  const [form, setForm] = useState(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+
+  async function load() {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("testimonials")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (!error && data) setItems(data);
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  function startEdit(t) {
+    setEditingId(t.id);
+    setForm({ name: t.name || "", role: t.role || "", quote: t.quote || "" });
+    setMessage("");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setMessage("");
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+    setMessage("");
+    try {
+      if (editingId) {
+        const { error } = await supabase.from("testimonials").update(form).eq("id", editingId);
+        if (error) throw error;
+        setMessage("Updated!"); notify("Updated!");
+      } else {
+        const { error } = await supabase.from("testimonials").insert(form);
+        if (error) throw error;
+        setMessage("Saved!"); notify("Saved!");
+      }
+      cancelEdit();
+      load();
+    } catch (err) {
+      setMessage(`Something went wrong: ${err.message}`); notify(`Something went wrong: ${err.message}`, "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm("Delete this testimonial?")) return;
+    await supabase.from("testimonials").delete().eq("id", id);
+    if (editingId === id) cancelEdit();
+    load();
+  }
+
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="clipping clipping-notape p-8 mb-16 space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display font-bold text-xl">
+            {editingId ? "Edit testimonial" : "Add a testimonial"}
+          </h3>
+          {editingId && (
+            <button
+              type="button"
+              onClick={cancelEdit}
+              className="inline-flex items-center gap-1 text-sm text-muted hover:text-red transition-colors"
+            >
+              <X size={14} /> Cancel
+            </button>
+          )}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-5">
+          <div>
+            {fieldLabel("Name")}
+            <input
+              required
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            {fieldLabel("Role / company (optional)")}
+            <input
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+              placeholder="Founder, Acme Co."
+              className={inputClass}
+            />
+          </div>
+        </div>
+        <div>
+          {fieldLabel("Quote")}
+          <textarea
+            required
+            rows={3}
+            value={form.quote}
+            onChange={(e) => setForm({ ...form, quote: e.target.value })}
+            className={inputClass + " resize-none"}
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={saving}
+          className="bg-ink text-paper px-6 py-3 rounded-sm font-medium hover:bg-red transition-colors disabled:opacity-50"
+        >
+          {saving ? "Saving..." : editingId ? "Update testimonial" : "Save testimonial"}
+        </button>
+        {message && <p className="text-sm mt-2">{message}</p>}
+      </form>
+
+      <h2 className="font-display font-bold text-2xl mb-6">
+        Your testimonials {loading && "(loading...)"}
+      </h2>
+      <div className="space-y-3">
+        {items.map((t) => (
+          <div key={t.id} className="flex items-center justify-between border border-line rounded-sm px-4 py-3">
+            <div>
+              <p className="font-medium">{t.name}</p>
+              <p className="font-mono text-[10px] uppercase tracking-widest text-muted">{t.role}</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button onClick={() => startEdit(t)} className="text-muted hover:text-ink transition-colors" aria-label="Edit">
+                <Pencil size={16} />
+              </button>
+              <button onClick={() => handleDelete(t.id)} className="text-muted hover:text-red transition-colors" aria-label="Delete">
+                <Trash2 size={17} />
+              </button>
+            </div>
+          </div>
+        ))}
+        {items.length === 0 && !loading && <p className="text-muted text-sm">No testimonials saved yet.</p>}
+      </div>
+    </>
   );
 }

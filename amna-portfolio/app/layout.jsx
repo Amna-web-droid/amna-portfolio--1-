@@ -2,6 +2,7 @@ import { Fraunces, Inter, Caveat, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import ChatWidget from "@/components/ChatWidget";
 import CommandPalette from "@/components/CommandPalette";
+import Toaster from "@/components/Toaster";
 import { Analytics } from "@vercel/analytics/react";
 
 const display = Fraunces({
@@ -59,6 +60,31 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <head>
         <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Person",
+              name: "Amna Mushtaq",
+              jobTitle: "MERN Stack Developer",
+              url: "https://amna-portfolio-1.vercel.app",
+              sameAs: [
+                "https://github.com/Amna-web-droid",
+                "https://www.linkedin.com/in/amna-mushtaq-743380389/",
+              ],
+              knowsAbout: [
+                "React",
+                "Next.js",
+                "Tailwind CSS",
+                "Node.js",
+                "Express",
+                "PostgreSQL",
+                "MongoDB",
+              ],
+            }),
+          }}
+        />
+        <script
           dangerouslySetInnerHTML={{
             __html: `
               (function () {
@@ -79,6 +105,7 @@ export default function RootLayout({ children }) {
         {children}
         <ChatWidget />
         <CommandPalette />
+        <Toaster />
         <Analytics />
       </body>
     </html>
