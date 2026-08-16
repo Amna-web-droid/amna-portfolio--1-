@@ -78,10 +78,21 @@ body {
   position: relative;
   background: rgb(var(--color-card));
   box-shadow: 0 1px 2px rgb(var(--color-ink) / 0.06), 0 8px 24px rgb(var(--color-ink) / 0.08);
+  transform: rotate(var(--clip-rotate, 0deg));
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.clipping-interactive:hover {
+  transform: rotate(var(--clip-rotate, 0deg)) translateY(-6px);
+  box-shadow: 0 4px 8px rgb(var(--color-ink) / 0.1), 0 18px 32px rgb(var(--color-ink) / 0.14);
 }
 
 .dark .clipping {
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 8px 24px rgb(0 0 0 / 0.4), 0 0 0 1px rgb(var(--color-line) / 0.5);
+}
+
+.dark .clipping-interactive:hover {
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.45), 0 18px 34px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(var(--color-line) / 0.7);
 }
 
 .clipping::before,

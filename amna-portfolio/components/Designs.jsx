@@ -3,6 +3,7 @@ import { Figma } from "lucide-react";
 import { designs as staticDesigns } from "@/data/designs";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 import Clipping from "./Clipping";
+import Reveal from "./Reveal";
 
 const rotations = [-1.5, 1, -1, 1.5];
 
@@ -30,16 +31,19 @@ export default async function Designs() {
   return (
     <section id="designs" className="px-6 md:px-10 py-16 border-t-2 border-ink">
       <div className="max-w-content mx-auto">
+        <Reveal>
         <p className="font-mono text-xs uppercase tracking-widest text-muted mb-2">
           Section C
         </p>
         <h2 className="font-display font-bold text-4xl mb-1">Design sketches.</h2>
         <p className="font-hand text-xl text-red mb-10">Figma explorations, before the code</p>
+        </Reveal>
 
         {designs.length > 0 ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-14">
             {designs.map((d, i) => (
-              <Clipping key={d.title} rotate={rotations[i % rotations.length]} className="p-3 pb-5">
+              <Reveal key={d.title} delay={(i % 3) * 0.1}>
+              <Clipping rotate={rotations[i % rotations.length]} className="p-3 pb-5">
                 <div className="relative aspect-[4/3] bg-paper overflow-hidden torn-bottom">
                   {d.image ? (
                     <Image
@@ -70,6 +74,7 @@ export default async function Designs() {
                   )}
                 </div>
               </Clipping>
+              </Reveal>
             ))}
           </div>
         ) : (

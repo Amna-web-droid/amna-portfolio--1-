@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import BookCard from "@/components/BookCard";
+import Reveal from "@/components/Reveal";
 import { journeyBooks as staticBooks } from "@/data/journeyBooks";
 import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient";
 
@@ -57,7 +58,9 @@ export default async function JourneyPage() {
           {books.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {books.map((b, i) => (
-                <BookCard key={b.id} book={b} rotate={rotations[i % rotations.length]} />
+                <Reveal key={b.id} delay={(i % 4) * 0.08}>
+                  <BookCard book={b} rotate={rotations[i % rotations.length]} />
+                </Reveal>
               ))}
             </div>
           ) : (

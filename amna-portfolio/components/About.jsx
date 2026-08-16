@@ -1,4 +1,5 @@
 import Clipping from "./Clipping";
+import Reveal from "./Reveal";
 import GitHubStats from "./GitHubStats";
 import { BookMarked, GraduationCap } from "lucide-react";
 
@@ -28,6 +29,7 @@ export default function About() {
   return (
     <section id="about" className="px-6 md:px-10 py-24 border-t border-line">
       <div className="max-w-content mx-auto grid md:grid-cols-2 gap-16">
+        <Reveal>
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-plum mb-5">
             About
@@ -65,7 +67,9 @@ export default function About() {
 
           <GitHubStats />
         </div>
+        </Reveal>
 
+        <Reveal delay={0.15}>
         <Clipping rotate={2} tape={false} className="p-6 self-start">
           <p className="font-mono text-[10px] uppercase tracking-widest text-muted mb-3">
             Currently
@@ -104,13 +108,14 @@ export default function About() {
             </ul>
           </div>
         </Clipping>
+        </Reveal>
       </div>
 
       <div className="max-w-content mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-10">
-        {wordBuilds.map(({ parts, note }) => (
+        {wordBuilds.map(({ parts, note }, i) => (
+          <Reveal key={parts.join("")} delay={i * 0.08}>
           <div
-            key={parts.join("")}
-            className="rounded-xl border border-line bg-card p-5 hover:border-pine/50 transition-colors"
+            className="rounded-xl border border-line bg-card p-5 hover:border-pine/50 hover:-translate-y-1 transition-all"
           >
             <div className="font-display text-2xl mb-3 flex flex-wrap items-baseline">
               {parts.map((p, i) => (
@@ -126,6 +131,7 @@ export default function About() {
             </div>
             <p className="text-xs text-muted leading-relaxed">{note}</p>
           </div>
+          </Reveal>
         ))}
       </div>
     </section>

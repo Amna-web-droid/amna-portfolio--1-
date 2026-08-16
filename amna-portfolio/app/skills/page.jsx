@@ -2,6 +2,7 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Clipping from "@/components/Clipping";
 import SkillBar from "@/components/SkillBar";
+import Reveal from "@/components/Reveal";
 import { skillGroups } from "@/data/skills";
 
 export const metadata = {
@@ -27,8 +28,8 @@ export default function SkillsPage() {
 
           <div className="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {skillGroups.map((group, i) => (
+              <Reveal key={group.category} delay={(i % 2) * 0.12}>
               <Clipping
-                key={group.category}
                 rotate={rotations[i % rotations.length]}
                 className="p-7 md:p-8"
               >
@@ -44,6 +45,7 @@ export default function SkillsPage() {
                   />
                 ))}
               </Clipping>
+              </Reveal>
             ))}
           </div>
 

@@ -2,6 +2,7 @@
 
 import { Send } from "lucide-react";
 import Clipping from "./Clipping";
+import Reveal from "./Reveal";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/maqrdaqw";
 
@@ -9,6 +10,7 @@ export default function Contact() {
   return (
     <section id="contact" className="px-6 md:px-10 py-20 border-t-2 border-ink">
       <div className="max-w-xl mx-auto">
+        <Reveal>
         <p className="font-mono text-xs uppercase tracking-widest text-muted mb-2 text-center">
           Section D
         </p>
@@ -16,7 +18,9 @@ export default function Contact() {
         <p className="font-hand text-xl text-red mb-10 text-center">
           got a project, or just want to say hi?
         </p>
+        </Reveal>
 
+        <Reveal delay={0.15}>
         <Clipping rotate={-0.5} className="p-8 md:p-10">
           <form action={FORMSPREE_ENDPOINT} method="POST" className="space-y-5">
             {/* Honeypot — hidden from real visitors, bots often fill it in */}
@@ -72,6 +76,7 @@ export default function Contact() {
             </button>
           </form>
         </Clipping>
+        </Reveal>
       </div>
     </section>
   );
